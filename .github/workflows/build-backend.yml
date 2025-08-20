@@ -1,0 +1,54 @@
+name: Build Backend Docker Image
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure Docker cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build backend image
+        working-directory: backend
+        run: |
+          docker build \
+            --file Dockerfile \
+            --tag expense-backend:${{ github.sha }} \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            --progress=plain \
+            .
+
+      # Optional: push to GHCR if needed
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Build and push
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./backend
+      #     file: ./backend/Dockerfile
+      #     push: true
+      #     tags: ghcr.io/${{ github.repository_owner }}/expense-backend:latest,ghcr.io/${{ github.repository_owner }}/expense-backend:${{ github.sha }}
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
