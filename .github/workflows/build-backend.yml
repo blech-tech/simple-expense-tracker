@@ -26,7 +26,6 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Build backend image
-        working-directory: backend
         run: |
           docker build \
             --file Dockerfile \
