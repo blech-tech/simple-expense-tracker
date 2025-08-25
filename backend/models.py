@@ -1,11 +1,11 @@
-from sqlalchemy import Column, Integer, String, Float
-from sqlalchemy.ext.declarative import declarative_base
+import uuid
+from sqlalchemy import Column, String, Float, UUID
 
-Base = declarative_base()
+from .database import Base
 
 class Expense(Base):
     __tablename__ = "expenses"
 
-    id = Column(Integer, primary_key=True, index=True)
-    description = Column(String, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    description = Column(String)
     amount = Column(Float)

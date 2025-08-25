@@ -1,60 +1,85 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Dict, List
-from uuid import uuid4
+from typing import List, Optional
+from uuid import UUID
+
+# Import your SQLAlchemy models
+from .database import SessionLocal
+from . import models
 
 app = FastAPI()
 
-# Список разрешенных адресов (доменов/портов)
+# Your CORS settings...
 origins = [
-    "http://localhost:5173",  # Адрес твоего фронтенда
-    "http://127.0.0.1:5173", # Ещё один вариант localhost
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Разрешаем все HTTP-методы (GET, POST, DELETE и т.д.)
-    allow_headers=["*"],  # Разрешаем все заголовки
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+
+# Pydantic model for creating a new expense
 class ExpenseCreate(BaseModel):
     description: str
     amount: float
 
+
+# Pydantic model for a full expense, with the UUID type
 class Expense(BaseModel):
-    id: str
+    id: UUID
     description: str
     amount: float
 
-# Временное хранилище в памяти
-expenses_db: Dict[str, Expense] = {}
+
+@app.on_event("startup")
+def on_startup():
+    # We will use Alembic for migrations, so we can remove init_db()
+    pass
+
 
 @app.get("/")
 def read_root() -> dict[str, str]:
     return {"message": "Hello World"}
 
-if __name__ == "__main__":
-    import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+@app.post("/expenses/", response_model=Expense)
+def create_expense(expense: ExpenseCreate):  # Use ExpenseCreate here
+    db = SessionLocal()
+    # Create the SQLAlchemy model instance
+    db_expense = models.Expense(description=expense.description, amount=expense.amount)
+    db.add(db_expense)
+    db.commit()
+    db.refresh(db_expense)
+    db.close()
+    return db_expense
 
-@app.post("/expenses/")
-async def create_expense(expense: ExpenseCreate):
-    # Генерируем ID внутри бэкенда
-    expense_with_id = Expense(id=str(uuid4()), description=expense.description, amount=expense.amount)
-    expenses_db[expense_with_id.id] = expense_with_id
-    return expense_with_id
 
 @app.get("/expenses/", response_model=List[Expense])
-async def get_expenses():
-    return list(expenses_db.values())
+def get_expenses():
+    db = SessionLocal()
+    expenses = db.query(models.Expense).all()
+    db.close()
+    return expenses
+
 
 @app.delete("/expenses/{expense_id}")
-async def delete_expense(expense_id: str):
-    if expense_id not in expenses_db:
+def delete_expense(expense_id: UUID):
+    db = SessionLocal()
+    expense = db.query(models.Expense).filter(models.Expense.id == expense_id).first()
+    if not expense:
         raise HTTPException(status_code=404, detail="Expense not found")
-    del expenses_db[expense_id]
+    db.delete(expense)
+    db.commit()
+    db.close()
     return {"message": "Expense deleted successfully"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
