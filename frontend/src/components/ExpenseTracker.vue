@@ -2,15 +2,16 @@
   <div class="expense-tracker">
     <h1>Отслеживание расходов</h1>
 
-    <!-- Форма для добавления нового расхода -->
+    <p v-if="message">{{ message }}</p>
+
     <form @submit.prevent="addExpense" class="expense-form">
       <input
-        v-model="newExpenseDescription"
+        v-model="description"
         placeholder="Описание расхода"
         required
       />
       <input
-        v-model.number="newExpenseAmount"
+        v-model.number="amount"
         type="number"
         step="0.01"
         placeholder="Сумма"
@@ -19,7 +20,6 @@
       <button type="submit">Добавить расход</button>
     </form>
 
-    <!-- Список расходов -->
     <ul class="expense-list">
       <li v-for="expense in expenses" :key="expense.id" class="expense-item">
         <span>{{ expense.description }}</span>
@@ -30,57 +30,68 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
-export default {
-  name: 'ExpenseTracker',
-  data() {
+const expenses = ref([]);
+const description = ref('');
+const amount = ref('');
+const message = ref('');
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  if (token) {
     return {
-      expenses: [],
-      newExpenseDescription: '',
-      newExpenseAmount: null,
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     };
-  },
-  created() {
-    this.fetchExpenses();
-  },
-  methods: {
-    async fetchExpenses() {
-      try {
-        const response = await axios.get('http://localhost:8000/expenses/');
-        this.expenses = response.data;
-      } catch (error) {
-        console.error('Ошибка при получении расходов:', error);
-      }
-    },
-    async addExpense() {
-      try {
-        const newExpense = {
-          description: this.newExpenseDescription,
-          amount: parseFloat(this.newExpenseAmount),
-        };
-        await axios.post('http://localhost:8000/expenses/', newExpense);
-        this.newExpenseDescription = '';
-        this.newExpenseAmount = null;
-        this.fetchExpenses(); // Обновляем список расходов
-      } catch (error) {
-        console.error('Ошибка при добавлении расхода:', error);
-      }
-    },
-    async deleteExpense(id) {
-      try {
-        await axios.delete(`http://localhost:8000/expenses/${id}`);
-        this.fetchExpenses(); // Обновляем список расходов
-      } catch (error) {
-        console.error('Ошибка при удалении расхода:', error);
-      }
-    },
-  },
+  }
+  return {};
 };
+
+const fetchExpenses = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/expenses/', getAuthHeaders());
+    expenses.value = response.data;
+  } catch (error) {
+    message.value = 'Ошибка загрузки расходов. Пожалуйста, войдите в систему.';
+  }
+};
+
+const addExpense = async () => {
+  try {
+    const newExpense = {
+      description: description.value,
+      amount: parseFloat(amount.value)
+    };
+    await axios.post('http://localhost:8000/expenses/', newExpense, getAuthHeaders());
+    message.value = 'Расход успешно добавлен!';
+    description.value = '';
+    amount.value = '';
+    await fetchExpenses();
+  } catch (error) {
+    message.value = 'Не удалось добавить расход. Пожалуйста, войдите в систему.';
+  }
+};
+
+const deleteExpense = async (id) => {
+  try {
+    await axios.delete(`http://localhost:8000/expenses/${id}`, getAuthHeaders());
+    await fetchExpenses();
+  } catch (error) {
+    message.value = 'Ошибка при удалении расхода. Пожалуйста, войдите в систему.';
+  }
+};
+
+onMounted(() => {
+  fetchExpenses();
+});
 </script>
 
 <style scoped>
+/* твои текущие стили не изменились */
 .expense-tracker {
   font-family: Arial, sans-serif;
   max-width: 600px;
