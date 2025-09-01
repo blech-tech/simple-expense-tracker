@@ -145,26 +145,31 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
-
-
-@app.post("/expenses/", response_model=Expense)
-def create_expense(expense: schemas.ExpenseCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):  # Use ExpenseCreate here
-    db = SessionLocal()
-    # Create the SQLAlchemy model instance
-    db_expense = models.Expense(description=expense.description, amount=expense.amount)
+@app.post("/expenses/", response_model=schemas.ExpenseResponse)
+def create_expense(
+    expense: schemas.ExpenseCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    db_expense = models.Expense(
+        description=expense.description,
+        amount=expense.amount,
+        user_id=current_user.id 
+    )
     db.add(db_expense)
     db.commit()
     db.refresh(db_expense)
-    db.close()
     return db_expense
 
-
-@app.get("/expenses/", response_model=List[Expense])
-def get_expenses(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    db = SessionLocal()
-    expenses = db.query(models.Expense).all()
-    db.close()
+@app.get("/expenses/", response_model=List[schemas.ExpenseResponse])
+def get_expenses(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Фильтруем расходы по ID текущего пользователя
+    expenses = db.query(models.Expense).filter(models.Expense.user_id == current_user.id).all()
     return expenses
+
 
 
 @app.delete("/expenses/{expense_id}")
