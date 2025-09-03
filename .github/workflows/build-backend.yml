@@ -28,7 +28,8 @@ jobs:
       - name: Build backend image
         run: |
           docker build \
-            --file Dockerfile \
+            --context ./backend \
+            --file backend/Dockerfile \
             --tag expense-backend:${{ github.sha }} \
             --build-arg BUILDKIT_INLINE_CACHE=1 \
             --progress=plain \
