@@ -28,12 +28,11 @@ jobs:
       - name: Build backend image
         run: |
           docker build \
-            --context ./backend \
-            --file backend/Dockerfile \
+            --file ./backend/Dockerfile \
             --tag expense-backend:${{ github.sha }} \
             --build-arg BUILDKIT_INLINE_CACHE=1 \
             --progress=plain \
-            .
+            ./backend
 
       # Optional: push to GHCR if needed
       # - name: Log in to GitHub Container Registry
