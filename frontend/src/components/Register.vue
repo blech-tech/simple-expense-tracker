@@ -41,7 +41,7 @@
   
   const handleRegister = async () => {
     try {
-      await axios.post('http://localhost:8000/users/', {
+      await axios.post('http://localhost/api/users/', {
         username: username.value,
         password: password.value,
       });

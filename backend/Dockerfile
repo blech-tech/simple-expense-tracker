@@ -1,4 +1,5 @@
-# Используем официальный образ Python как базовый
+# backend/Dockerfile
+
 FROM python:3.12-slim
 
 # Faster, cleaner Python
@@ -9,15 +10,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
-# Копируем файл с зависимостями и устанавливаем их (Install dependencies)
+# Копируем файл с зависимостями и устанавливаем их
 COPY requirements.txt ./
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Копируем код приложения
-COPY ./backend ./backend
+# Копируем весь код приложения
+COPY . .
 
 EXPOSE 8000
 
 # Команда по умолчанию для запуска приложения
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

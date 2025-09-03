@@ -42,7 +42,7 @@ const router = useRouter();
 
 const handleLogin = async () => {
   try {
-    const response = await axios.post('http://localhost:8000/token', new URLSearchParams({
+    const response = await axios.post('http://localhost/api/token', new URLSearchParams({
       username: username.value,
       password: password.value,
     }), {

@@ -18,8 +18,9 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 # Local imports
-from .database import SessionLocal
-from . import models, schemas
+from database import SessionLocal
+import models
+import schemas
 
 # =============================================================================
 # FastAPI Application Setup
@@ -28,7 +29,8 @@ from . import models, schemas
 app = FastAPI(
     title="Simple Expense Tracker API",
     description="A simple API for tracking personal expenses",
-    version="1.0.0"
+    version="1.0.0",
+    root_path="/api"
 )
 
 # CORS Configuration
@@ -280,13 +282,3 @@ def update_expense(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-
-
-
-
-
-
-
-
-
-

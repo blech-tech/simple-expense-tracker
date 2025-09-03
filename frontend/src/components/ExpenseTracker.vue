@@ -77,7 +77,7 @@ const getAuthHeaders = () => {
 
 const fetchExpenses = async () => {
   try {
-    const response = await axios.get('http://localhost:8000/expenses/', getAuthHeaders());
+    const response = await axios.get('/api/expenses/', getAuthHeaders());
     expenses.value = response.data;
   } catch (error) {
     message.value = 'Ошибка загрузки расходов. Пожалуйста, войдите в систему.';
@@ -90,7 +90,7 @@ const addExpense = async () => {
       description: description.value,
       amount: parseFloat(amount.value)
     };
-    await axios.post('http://localhost:8000/expenses/', newExpense, getAuthHeaders());
+    await axios.post('/api/expenses/', newExpense, getAuthHeaders());
     message.value = 'Расход успешно добавлен!';
     description.value = '';
     amount.value = '';
@@ -102,7 +102,7 @@ const addExpense = async () => {
 
 const deleteExpense = async (id) => {
   try {
-    await axios.delete(`http://localhost:8000/expenses/${id}`, getAuthHeaders());
+    await axios.delete(`/api/expenses/${id}`, getAuthHeaders());
     message.value = 'Расход успешно удален!';
     await fetchExpenses();
   } catch (error) {
@@ -120,7 +120,7 @@ const updateExpense = async () => {
       description: editingExpense.value.description,
       amount: parseFloat(editingExpense.value.amount)
     };
-    await axios.put(`http://localhost:8000/expenses/${editingExpense.value.id}`, updatedExpense, getAuthHeaders());
+    await axios.put(`/api/expenses/${editingExpense.value.id}`, updatedExpense, getAuthHeaders());
     message.value = 'Расход успешно обновлен!';
     editingExpense.value = null;
     await fetchExpenses();
