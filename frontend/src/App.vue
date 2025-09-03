@@ -1,49 +1,27 @@
+// src/App.vue
+
 <template>
   <div class="app-container">
     <header v-if="isAuthenticated" class="app-header">
       <button class="btn btn-danger" @click="handleLogout">Выйти</button>
     </header>
-
-    <main v-if="isAuthenticated">
-      <ExpenseTracker ref="expenseTrackerRef" />
-    </main>
-
-    <main v-else>
-      <Login v-if="currentView === 'login'" @login-success="handleLogin" @switch-to-register="currentView = 'register'" />
-      <Register v-if="currentView === 'register'" @switch-to-login="currentView = 'login'" />
+    <main>
+      <router-view />
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import ExpenseTracker from './components/ExpenseTracker.vue';
-import Login from './components/Login.vue';
-import Register from './components/Register.vue';
+import { useRouter } from 'vue-router';
+import { isAuthenticated } from './store'; // Import the global state
 
-const isAuthenticated = ref(false);
-const currentView = ref('login');
-const expenseTrackerRef = ref(null);
-
-const handleLogin = () => {
-  isAuthenticated.value = true;
-  if (expenseTrackerRef.value) {
-    expenseTrackerRef.value.fetchExpenses();
-  }
-};
+const router = useRouter();
 
 const handleLogout = () => {
   localStorage.removeItem('token');
-  isAuthenticated.value = false;
-  currentView.value = 'login';
+  isAuthenticated.value = false; // Update the global state
+  router.push({ name: 'Login' });
 };
-
-onMounted(() => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    isAuthenticated.value = true;
-  }
-});
 </script>
 
 <style scoped>
