@@ -5,7 +5,7 @@
     </header>
 
     <main v-if="isAuthenticated">
-      <ExpenseTracker />
+      <ExpenseTracker ref="expenseTrackerRef" />
     </main>
 
     <main v-else>
@@ -23,9 +23,13 @@ import Register from './components/Register.vue';
 
 const isAuthenticated = ref(false);
 const currentView = ref('login');
+const expenseTrackerRef = ref(null);
 
 const handleLogin = () => {
   isAuthenticated.value = true;
+  if (expenseTrackerRef.value) {
+    expenseTrackerRef.value.fetchExpenses();
+  }
 };
 
 const handleLogout = () => {

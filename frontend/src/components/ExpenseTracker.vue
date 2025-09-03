@@ -1,29 +1,30 @@
 <template>
   <div class="expense-tracker">
     <h1>Отслеживание расходов</h1>
-
     <p v-if="message">{{ message }}</p>
 
-    <form @submit.prevent="addExpense" class="expense-form">
+    <form @submit.prevent="editingExpense ? updateExpense() : addExpense()" class="expense-form">
       <input
-        v-model="description"
+        v-model="computedDescription"
         placeholder="Описание расхода"
         required
       />
       <input
-        v-model.number="amount"
+        v-model.number="computedAmount"
         type="number"
         step="0.01"
         placeholder="Сумма"
         required
       />
-      <button type="submit">Добавить расход</button>
+      <button type="submit">{{ editingExpense ? 'Сохранить изменения' : 'Добавить расход' }}</button>
+      <button v-if="editingExpense" @click="cancelEditing" type="button">Отмена</button>
     </form>
 
     <ul class="expense-list">
       <li v-for="expense in expenses" :key="expense.id" class="expense-item">
         <span>{{ expense.description }}</span>
         <span>{{ expense.amount }}</span>
+        <button @click="startEditing(expense)" class="edit-button">Редактировать</button>
         <button @click="deleteExpense(expense.id)" class="delete-button">Удалить</button>
       </li>
     </ul>
@@ -31,13 +32,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const expenses = ref([]);
 const description = ref('');
 const amount = ref('');
 const message = ref('');
+const editingExpense = ref(null);
+
+const computedDescription = computed({
+  get: () => editingExpense.value ? editingExpense.value.description : description.value,
+  set: (value) => {
+    if (editingExpense.value) {
+      editingExpense.value.description = value;
+    } else {
+      description.value = value;
+    }
+  }
+});
+
+const computedAmount = computed({
+  get: () => editingExpense.value ? editingExpense.value.amount : amount.value,
+  set: (value) => {
+    if (editingExpense.value) {
+      editingExpense.value.amount = value;
+    } else {
+      amount.value = value;
+    }
+  }
+});
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -79,19 +103,46 @@ const addExpense = async () => {
 const deleteExpense = async (id) => {
   try {
     await axios.delete(`http://localhost:8000/expenses/${id}`, getAuthHeaders());
+    message.value = 'Расход успешно удален!';
     await fetchExpenses();
   } catch (error) {
-    message.value = 'Ошибка при удалении расхода. Пожалуйста, войдите в систему.';
+    message.value = 'Ошибка при удалении расхода. Возможно, у вас нет прав.';
   }
+};
+
+const startEditing = (expense) => {
+  editingExpense.value = { ...expense };
+};
+
+const updateExpense = async () => {
+  try {
+    const updatedExpense = {
+      description: editingExpense.value.description,
+      amount: parseFloat(editingExpense.value.amount)
+    };
+    await axios.put(`http://localhost:8000/expenses/${editingExpense.value.id}`, updatedExpense, getAuthHeaders());
+    message.value = 'Расход успешно обновлен!';
+    editingExpense.value = null;
+    await fetchExpenses();
+  } catch (error) {
+    message.value = 'Не удалось обновить расход. Возможно, у вас нет прав.';
+  }
+};
+
+const cancelEditing = () => {
+  editingExpense.value = null;
 };
 
 onMounted(() => {
   fetchExpenses();
 });
+
+defineExpose({
+  fetchExpenses
+});
 </script>
 
 <style scoped>
-/* твои текущие стили не изменились */
 .expense-tracker {
   font-family: Arial, sans-serif;
   max-width: 600px;
@@ -165,5 +216,18 @@ h1 {
 
 .delete-button:hover {
   background-color: #da190b;
+}
+
+.edit-button {
+  background-color: #3f7de9;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background-color: #3461a3;
 }
 </style>
