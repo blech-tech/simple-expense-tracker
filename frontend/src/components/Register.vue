@@ -41,15 +41,15 @@
   
   const handleRegister = async () => {
     try {
-      await axios.post('http://localhost/api/users/', {
+      await axios.post('${import.meta.env.VITE_API_URL}/users/', {
         username: username.value,
         password: password.value,
       });
-      message.value = 'Регистрация успешна! Теперь вы можете войти.';
+      message.value = 'Registration successful! Now you can log in.';
       router.push({ name: 'Login' }); // <-- Навигация на страницу входа
   
     } catch (error) {
-      message.value = 'Не удалось зарегистрироваться. Пользователь уже существует?';
+      message.value = 'Failed to register. User already exists?';
     }
   };
   </script>

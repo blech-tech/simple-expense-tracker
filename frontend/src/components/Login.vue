@@ -1,9 +1,9 @@
 <template>
     <div class="expense-tracker">
-      <h1>Вход</h1>
+      <h1>Wellcome to Expense Tracker</h1>
       <form @submit.prevent="handleLogin" class="expense-form">
         <div>
-          <label>Имя пользователя</label>
+          <label>Username</label>
           <input
             type="text"
             v-model="username"
@@ -11,19 +11,19 @@
           />
         </div>
         <div>
-          <label>Пароль</label>
+          <label>Password</label>
           <input
             type="password"
             v-model="password"
             required
           />
         </div>
-        <button type="submit">Войти</button>
+        <button type="submit">Login</button>
       </form>
       <p v-if="message">{{ message }}</p>
       <p>
-        Нет аккаунта?
-        <router-link to="/register">Зарегистрироваться</router-link>
+        No account?
+        <router-link to="/register">Register</router-link>
       </p>
     </div>
   </template>
@@ -42,7 +42,7 @@ const router = useRouter();
 
 const handleLogin = async () => {
   try {
-    const response = await axios.post('http://localhost/api/token', new URLSearchParams({
+    const response = await axios.post('${import.meta.env.VITE_API_URL}/token', new URLSearchParams({
       username: username.value,
       password: password.value,
     }), {
@@ -53,10 +53,10 @@ const handleLogin = async () => {
 
     localStorage.setItem('token', response.data.access_token);
     isAuthenticated.value = true; // Update the global state
-    message.value = 'Вход выполнен успешно!';
+    message.value = 'Login successful!';
     router.push({ name: 'ExpenseTracker' });
   } catch (error) {
-    message.value = 'Не удалось войти. Неверные данные.';
+    message.value = 'Failed to log in. Incorrect data.';
   }
 };
 </script>

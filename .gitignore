@@ -209,3 +209,5 @@ __marimo__/
 # Node
 frontend/node_modules/
 
+# Docker
+docker-compose.prod.yml
