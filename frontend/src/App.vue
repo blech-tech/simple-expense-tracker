@@ -3,7 +3,7 @@
 <template>
   <div class="app-container">
     <header v-if="isAuthenticated" class="app-header">
-      <button class="btn btn-danger" @click="handleLogout">Выйти</button>
+      <button class="btn btn-danger" @click="handleLogout">Logout</button>
     </header>
     <main>
       <router-view />

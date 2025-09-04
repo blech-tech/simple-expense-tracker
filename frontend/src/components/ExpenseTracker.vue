@@ -1,31 +1,34 @@
+// src/components/ExpenseTracker.vue
+
+
 <template>
   <div class="expense-tracker">
-    <h1>Отслеживание расходов</h1>
+    <h1>Expense Tracking</h1>
     <p v-if="message">{{ message }}</p>
 
     <form @submit.prevent="editingExpense ? updateExpense() : addExpense()" class="expense-form">
       <input
         v-model="computedDescription"
-        placeholder="Описание расхода"
+        placeholder="Expense Description"
         required
       />
       <input
         v-model.number="computedAmount"
         type="number"
         step="0.01"
-        placeholder="Сумма"
+        placeholder="Amount"
         required
       />
-      <button type="submit">{{ editingExpense ? 'Сохранить изменения' : 'Добавить расход' }}</button>
-      <button v-if="editingExpense" @click="cancelEditing" type="button">Отмена</button>
+      <button type="submit">{{ editingExpense ? 'Save Changes' : 'Add Expense' }}</button>
+      <button v-if="editingExpense" @click="cancelEditing" type="button">Cancel</button>
     </form>
 
     <ul class="expense-list">
       <li v-for="expense in expenses" :key="expense.id" class="expense-item">
         <span>{{ expense.description }}</span>
         <span>{{ expense.amount }}</span>
-        <button @click="startEditing(expense)" class="edit-button">Редактировать</button>
-        <button @click="deleteExpense(expense.id)" class="delete-button">Удалить</button>
+        <button @click="startEditing(expense)" class="edit-button">Edit</button>
+        <button @click="deleteExpense(expense.id)" class="delete-button">Delete</button>
       </li>
     </ul>
   </div>
@@ -80,7 +83,7 @@ const fetchExpenses = async () => {
     const response = await axios.get('/api/expenses/', getAuthHeaders());
     expenses.value = response.data;
   } catch (error) {
-    message.value = 'Ошибка загрузки расходов. Пожалуйста, войдите в систему.';
+    message.value = 'Error loading expenses. Please log in.';
   }
 };
 
@@ -91,22 +94,22 @@ const addExpense = async () => {
       amount: parseFloat(amount.value)
     };
     await axios.post('/api/expenses/', newExpense, getAuthHeaders());
-    message.value = 'Расход успешно добавлен!';
+    message.value = 'Expense successfully added!';
     description.value = '';
     amount.value = '';
     await fetchExpenses();
   } catch (error) {
-    message.value = 'Не удалось добавить расход. Пожалуйста, войдите в систему.';
+    message.value = 'Failed to add expense. Please log in.';
   }
 };
 
 const deleteExpense = async (id) => {
   try {
     await axios.delete(`/api/expenses/${id}`, getAuthHeaders());
-    message.value = 'Расход успешно удален!';
+    message.value = 'Expense successfully deleted!';
     await fetchExpenses();
   } catch (error) {
-    message.value = 'Ошибка при удалении расхода. Возможно, у вас нет прав.';
+    message.value = 'Error deleting expense. You may not have permission.';
   }
 };
 
@@ -121,11 +124,11 @@ const updateExpense = async () => {
       amount: parseFloat(editingExpense.value.amount)
     };
     await axios.put(`/api/expenses/${editingExpense.value.id}`, updatedExpense, getAuthHeaders());
-    message.value = 'Расход успешно обновлен!';
+    message.value = 'Expense successfully updated!';
     editingExpense.value = null;
     await fetchExpenses();
   } catch (error) {
-    message.value = 'Не удалось обновить расход. Возможно, у вас нет прав.';
+    message.value = 'Failed to update expense. You may not have permission.';
   }
 };
 

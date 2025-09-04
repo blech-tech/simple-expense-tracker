@@ -1,9 +1,11 @@
+// src/components/Register.vue
+
 <template>
     <div class="expense-tracker">
-      <h1>Регистрация</h1>
+      <h1>Register</h1>
       <form @submit.prevent="handleRegister" class="expense-form">
         <div>
-          <label>Имя пользователя</label>
+          <label>Username</label>
           <input
             type="text"
             v-model="username"
@@ -11,19 +13,19 @@
           />
         </div>
         <div>
-          <label>Пароль</label>
+          <label>Password</label>
           <input
             type="password"
             v-model="password"
             required
           />
         </div>
-        <button type="submit">Зарегистрироваться</button>
+        <button type="submit">Register</button>
       </form>
       <p v-if="message">{{ message }}</p>
       <p>
-        Уже есть аккаунт?
-        <router-link to="/">Войти</router-link>
+        Already have an account?
+        <router-link to="/">Login</router-link>
       </p>
     </div>
   </template>
@@ -41,7 +43,7 @@
   
   const handleRegister = async () => {
     try {
-      await axios.post('${import.meta.env.VITE_API_URL}/users/', {
+      await axios.post(`${import.meta.env.VITE_API_URL}/users/`, {
         username: username.value,
         password: password.value,
       });

@@ -3,3 +3,6 @@ services:
   frontend:
     environment:
       - VITE_API_URL=http://localhost/api
+  web:
+    environment:
+      - CORS_ORIGINS=http://localhost:5173

@@ -1,3 +1,5 @@
+// src/components/Login.vue
+
 <template>
     <div class="expense-tracker">
       <h1>Wellcome to Expense Tracker</h1>
@@ -42,7 +44,7 @@ const router = useRouter();
 
 const handleLogin = async () => {
   try {
-    const response = await axios.post('${import.meta.env.VITE_API_URL}/token', new URLSearchParams({
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/token`, new URLSearchParams({
       username: username.value,
       password: password.value,
     }), {

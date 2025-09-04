@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 from database import SessionLocal
 import models
 import schemas
+import os
 
 # =============================================================================
 # FastAPI Application Setup
@@ -34,10 +35,13 @@ app = FastAPI(
 )
 
 # CORS Configuration
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+origins_str = os.getenv("CORS_ORIGINS", "http://localhost:5173")
+origins = origins_str.split(",")
+
+#origins = [
+#    "http://localhost:5173",
+#    "http://127.0.0.1:5173",
+#]
 
 app.add_middleware(
     CORSMiddleware,
