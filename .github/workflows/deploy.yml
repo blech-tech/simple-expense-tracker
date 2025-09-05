@@ -25,12 +25,19 @@ jobs:
             # Navigate to the project directory
             cd /root/simple-exspense-tracker # Замените на путь к вашему проекту на сервере
             
-            # Force update the repository to match the remote state
+            # Ensure we are on the main branch
             git checkout main
+            
+            # Fetch all changes from the remote repository
             git fetch origin
+            
+            # Force the local main branch to match the remote main branch
             git reset --hard origin/main
             
-            # Start Docker containers with production config
+            # Clean up any untracked files
+            git clean -f -d
+            
+            # Rebuild and restart the Docker containers
             docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --force-recreate -d
             
             echo "Deployment finished successfully!"
