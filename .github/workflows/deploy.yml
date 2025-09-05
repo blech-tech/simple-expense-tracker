@@ -1,0 +1,34 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root # Замените на имя вашего пользователя, если он не root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Starting deployment..."
+            
+            # Navigate to the project directory
+            cd /root/simple-exspense-tracker # Замените на путь к вашему проекту на сервере
+            
+            # Pull the latest changes from the main branch
+            git pull origin main
+            
+            # Start Docker containers with production config
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --force-recreate -d
+            
+            echo "Deployment finished successfully!"
