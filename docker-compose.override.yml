@@ -6,3 +6,4 @@ services:
   web:
     environment:
       - CORS_ORIGINS=http://localhost:5173
+      - SECRET_KEY=your-secret-key

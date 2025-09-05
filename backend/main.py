@@ -38,11 +38,6 @@ app = FastAPI(
 origins_str = os.getenv("CORS_ORIGINS", "http://localhost:5173")
 origins = origins_str.split(",")
 
-#origins = [
-#    "http://localhost:5173",
-#    "http://127.0.0.1:5173",
-#]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -55,7 +50,7 @@ app.add_middleware(
 # Configuration Constants
 # =============================================================================
 
-SECRET_KEY = "your-secret-key"  # TODO: Use environment variable in production
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
