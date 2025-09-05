@@ -23,7 +23,7 @@ jobs:
             echo "Starting deployment..."
             
             # Navigate to the project directory
-            cd /root/simple-exspense-tracker # Замените на путь к вашему проекту на сервере
+            cd /root/simple-expense-tracker # Замените на путь к вашему проекту на сервере
             
             # Ensure we are on the main branch
             git checkout main
