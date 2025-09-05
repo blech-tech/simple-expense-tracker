@@ -8,6 +8,9 @@
     <main>
       <router-view />
     </main>
+    <footer class="app-footer">
+      <span>© {{ new Date().getFullYear() }} Simple Expense Tracker, Blech-Tech</span>
+    </footer>
   </div>
 </template>
 
@@ -34,5 +37,13 @@ const handleLogout = () => {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
+}
+.app-footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e5e5;
+  color: #666;
+  font-size: 14px;
+  text-align: center;
 }
 </style>

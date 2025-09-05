@@ -9,18 +9,20 @@ const routes = [
   {
     path: '/',
     name: 'Login',
-    component: Login
+    component: Login,
+    meta: { title: 'Login • Expense Tracker' }
   },
   {
     path: '/register',
     name: 'Register',
-    component: Register
+    component: Register,
+    meta: { title: 'Register • Expense Tracker' }
   },
   {
     path: '/expenses',
     name: 'ExpenseTracker',
     component: ExpenseTracker,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: 'My Expenses • Expense Tracker' }
   }
 ];
 
@@ -36,6 +38,11 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
+});
+
+router.afterEach((to) => {
+  const defaultTitle = 'Expense Tracker';
+  document.title = to.meta?.title || defaultTitle;
 });
 
 export default router;
