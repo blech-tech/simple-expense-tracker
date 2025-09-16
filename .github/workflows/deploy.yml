@@ -1,3 +1,4 @@
+# .github/workflows/deploy.yml
 name: Deploy to Production
 
 on:
@@ -23,7 +24,7 @@ jobs:
             echo "Starting deployment..."
             
             # Navigate to the project directory
-            cd /root/simple-expense-tracker # Замените на путь к вашему проекту на сервере
+            cd /root/simple-expense-tracker
             
             # Ensure we are on the main branch
             git checkout main
@@ -36,8 +37,8 @@ jobs:
             
             # Clean up any untracked files
             git clean -f -d
-            
+
             # Rebuild and restart the Docker containers
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --force-recreate -d
-            
+            docker-compose -f docker-compose.prod.template.yml up --build --force-recreate -d
+
             echo "Deployment finished successfully!"
